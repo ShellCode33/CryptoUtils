@@ -2,6 +2,7 @@ package fr.iut.view;
 
 import fr.iut.Controller;
 import fr.iut.State;
+import fr.iut.model.Ceasar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -52,7 +53,7 @@ public class CeasarView extends Scene {
         Button encodeButton = new Button("Encode");
 
         encodeButton.setOnAction(actionEvent -> {
-
+            resultArea.setText(Ceasar.encode(textArea.getText(), shiftSpinner.getValue()));
         });
 
         Text subtitle2 = new Text("Cracker");

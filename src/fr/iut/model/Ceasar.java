@@ -26,4 +26,19 @@ public class Ceasar {
     public String getMostProbableAnswer() {
         return null;
     }
+
+    public static String encode(String text, int shift) {
+        char [] result = text.toUpperCase().toCharArray();
+
+        for(int i = 0; i < result.length; i++) {
+            if(result[i] != ' ') {
+                if(result[i]+shift > 'Z')
+                    result[i] -= 26 - shift;
+                else
+                    result[i] += shift;
+            }
+        }
+
+        return new String(result);
+    }
 }
