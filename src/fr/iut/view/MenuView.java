@@ -1,5 +1,7 @@
-package fr.iut;
+package fr.iut.view;
 
+import fr.iut.Controller;
+import fr.iut.State;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,7 +19,7 @@ public class MenuView extends Scene {
 
     BorderPane root;
 
-    public MenuView(Main main) {
+    public MenuView(Controller main) {
         super(new BorderPane());
         root = (BorderPane) getRoot();
         root.setPadding(new Insets(30, 30, 0, 30));

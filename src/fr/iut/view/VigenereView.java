@@ -1,18 +1,12 @@
-package fr.iut;
+package fr.iut.view;
 
-import javafx.geometry.Pos;
+import fr.iut.Controller;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-
-import java.util.ArrayList;
-
-import static javafx.geometry.Pos.CENTER;
 
 /**
  * Created by shellcode on 3/2/17.
@@ -21,7 +15,7 @@ public class VigenereView extends Scene {
 
     private VBox root;
 
-    public VigenereView() {
+    public VigenereView(Controller controller) {
         super(new VBox());
         root = (VBox) getRoot();
 

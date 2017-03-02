@@ -1,5 +1,6 @@
-package fr.iut;
+package fr.iut.view;
 
+import fr.iut.Controller;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,7 +21,7 @@ public class CeasarView extends Scene {
 
     private TextField [] resultInputs = new TextField[26];
 
-    public CeasarView() {
+    public CeasarView(Controller controller) {
         super(new VBox());
         root = (VBox) getRoot();
         root.setPadding(new Insets(30));
@@ -35,9 +36,9 @@ public class CeasarView extends Scene {
         inputWrapper.setSpacing(10);
         TextField input = new TextField();
         input.setPromptText("Ceasar code...");
-        Button crackButton = new Button("Crack");
+        Button crackButton = new Button("Bruteforce");
 
-        crackButton.setOnAction(action -> crack(input.getText()));
+        //crackButton.setOnAction(action -> crack(input.getText()));
 
         inputWrapper.getChildren().addAll(input, crackButton);
 
@@ -72,16 +73,6 @@ public class CeasarView extends Scene {
             resultInputs[i] = new TextField();
             hbox.getChildren().addAll(letter, resultInputs[i]);
             column2.getChildren().add(hbox);
-        }
-    }
-
-    private void crack(String cipher) {
-        for(int i = 0; i < 26; i++) {
-            String result = "";
-
-            for(char c : cipher.toCharArray()) {
-
-            }
         }
     }
 }
