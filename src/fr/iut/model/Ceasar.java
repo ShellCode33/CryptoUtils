@@ -6,6 +6,7 @@ package fr.iut.model;
 public class Ceasar {
 
     String cipher;
+    String [] results = new String[26];
 
     public Ceasar(String cipher) {
         this.cipher = cipher;
@@ -13,7 +14,8 @@ public class Ceasar {
 
     public void bruteforce() {
         for(int i = 0; i < 26; i++) {
-            String result = "";
+
+            results[i] = "";
 
             for(char c : cipher.toCharArray()) {
 

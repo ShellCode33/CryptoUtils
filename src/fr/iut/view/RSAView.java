@@ -26,7 +26,7 @@ public class RSAView extends Scene {
         root = (VBox) getRoot();
 
         Text title = new Text("RSA");
-        title.setFont(new Font("Courier New", 30));
+        title.setFont(new Font("Courier New", 35));
 
         ComboBox keyList = new ComboBox();
         Button valid = new Button();

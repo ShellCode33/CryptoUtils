@@ -40,7 +40,7 @@ public class VigenereView extends Scene {
         final TableColumn<String, String> columnFreq = new TableColumn<>("Frequency");
 
         title.setText("Vigenere");
-        title.setFont(new Font("Courier New", 30));
+        title.setFont(new Font("Courier New", 35));
         titleMsg.setText("Message:");
 
         message.setPromptText("Entrez votre message");

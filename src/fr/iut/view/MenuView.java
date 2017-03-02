@@ -25,7 +25,7 @@ public class MenuView extends Scene {
         root.setPadding(new Insets(30, 30, 0, 30));
 
         Text title = new Text("Welcome in CyptoUtils");
-        title.setFont(new Font("Courier New", 30));
+        title.setFont(new Font("Courier New", 35));
         Text footer = new Text("Developped by Claire, Valentine, Clément !");
 
         VBox buttons = new VBox();
