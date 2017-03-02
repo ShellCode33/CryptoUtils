@@ -14,8 +14,8 @@ public class Main extends Application {
         stage = primaryStage;
 
         primaryStage.setTitle("CryptoUtils");
-        switchState(State.MENU);
         primaryStage.show();
+        switchState(State.MENU);
     }
 
 
@@ -30,7 +30,7 @@ public class Main extends Application {
                 break;
 
             case CEASAR:
-                //stage.setScene(new CeasarView());
+                stage.setScene(new CeasarView());
                 break;
 
             case RSA:
