@@ -1,5 +1,6 @@
 package fr.iut.view;
 
+import com.sun.org.apache.xml.internal.security.signature.InvalidSignatureValueException;
 import fr.iut.Controller;
 import fr.iut.State;
 import fr.iut.model.RSA;
@@ -42,124 +43,104 @@ public class RSAView extends Scene {
         Text title = new Text("RSA \n");
         title.setFont(new Font("Courier New", 35));
 
-        VBox enterKeys = new VBox();
-        enterKeys.setSpacing(10);
-
-        VBox containsKeys = new VBox();
-        containsKeys.setAlignment(Pos.CENTER);
-        containsKeys.setSpacing(10);
-        containsKeys.setPadding(new Insets(30));
-        containsKeys.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
+        VBox keysWrapper = new VBox();
+        keysWrapper.setAlignment(Pos.TOP_CENTER);
+        keysWrapper.setSpacing(10);
+        keysWrapper.setPadding(new Insets(30));
+        keysWrapper.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
 
         HBox keySize = new HBox();
         keySize.setAlignment(Pos.CENTER);
         keySize.setSpacing(10);
 
-        VBox messageBox = new VBox();
-        messageBox.setAlignment(Pos.CENTER);
-        messageBox.setSpacing(10);
-        messageBox.setPadding(new Insets(30));
-        messageBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
-
-        HBox messageButton = new HBox();
-        messageButton.setAlignment(Pos.CENTER);
-        messageButton.setSpacing(10);
-        messageButton.setPadding(new Insets(15));
-
-        VBox sign = new VBox();
-        sign.setAlignment(Pos.CENTER);
-        sign.setSpacing(10);
-        sign.setPadding(new Insets(30));
-        sign.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
-
-        HBox signButton = new HBox();
-        signButton.setAlignment(Pos.CENTER);
-        signButton.setSpacing(10);
+        VBox messageWrapper = new VBox();
+        messageWrapper.setAlignment(Pos.TOP_CENTER);
+        messageWrapper.setSpacing(10);
+        messageWrapper.setPadding(new Insets(30));
+        messageWrapper.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
 
         HBox all = new HBox();
         all.setSpacing(10);
 
-        ComboBox keyCheck = new ComboBox();
-        ComboBox signMethod = new ComboBox();
-        Button valid = new Button("Generate");
-        Button ok = new Button("Ok");
-        Button crypt = new Button("Crypt your message");
-        Button decrypt = new Button("Decrypt your message");
+        Button validButton = new Button("Generate");
+        Button okButton = new Button("Ok");
+        Button cryptButton = new Button("Crypt your message");
+        Button decryptButton = new Button("Decrypt your message");
         Button backButton = new Button("Back to menu");
-        Button bSign = new Button("Sign");
 
-        crypt.setDisable(true);
-        decrypt.setDisable(true);
+        ComboBox keySizesComboBox = new ComboBox();
+        keySizesComboBox.setPromptText("Key size");
+        keySizesComboBox.getItems().addAll(RSA.getSupportedKeySize());
 
-        ok.setDisable(true);
-        ok.setMinWidth(150);
-        ok.setMinHeight(50);
+        CheckBox useSignatureCheckBox = new CheckBox("Use signature");
+
+        Label signatureLabel = new Label();
+
+        ComboBox hashAlgoComboBox = new ComboBox();
+        hashAlgoComboBox.getItems().addAll(RSA.getSupportedHashAlgorithms());
+        hashAlgoComboBox.disableProperty().bind(useSignatureCheckBox.selectedProperty().not());
+        hashAlgoComboBox.getSelectionModel().selectLast();
+
+        cryptButton.setDisable(true);
+        decryptButton.setDisable(true);
+
+        okButton.setDisable(true);
+        okButton.setMinWidth(150);
+        okButton.setMinHeight(50);
 
         backButton.setOnAction(action -> controller.switchState(State.MENU));
         backButton.setMinWidth(200);
         backButton.setMinHeight(70);
 
-        TextArea tPrivateKey = new TextArea();
-        TextArea tPublicKey = new TextArea();
-        TextArea tMsgCrypt = new TextArea();
-        TextArea tMsgDecrypt = new TextArea();
-        TextArea tMod = new TextArea();
-        TextArea tMsgCrypt2 = new TextArea();
-        TextArea msgCryptS = new TextArea();
+        TextArea privateKeyTextArea = new TextArea();
+        TextArea publicKeyTextArea = new TextArea();
+        TextArea cryptedTextArea = new TextArea();
+        TextArea decryptedTextArea = new TextArea();
+        TextArea modulusTextArea = new TextArea();
 
-        Label lPrivateKey = new Label();
-        Label lPublicKey = new Label();
-        Label lMsgCrypt = new Label();
-        Label lMsgDecrypt = new Label();
-        Label lMod = new Label();
-        Label eKeys = new Label();
-        Label lMsgCrypt2 = new Label();
+        Label privateKeyLabel = new Label();
+        Label publicKeyLabel = new Label();
+        Label cryptLabel = new Label();
+        Label decryptLabel = new Label();
+        Label modulusLabel = new Label();
+        Label keysLabel = new Label();
 
-        lPrivateKey.setText("Your private key : ");
-        lPublicKey.setText("Your public key : ");
-        lMsgCrypt.setText("The cipher : ");
-        lMsgCrypt2.setText("The cipher : ");
-        lMsgDecrypt.setText("The plaintext : ");
-        lMod.setText("Modulus : ");
-        eKeys.setText("Enter your keys : ");
-        eKeys.setFont(new Font("Courier New", 15));
+        privateKeyLabel.setText("Your private key : ");
+        publicKeyLabel.setText("Your public key : ");
+        cryptLabel.setText("The cipher : ");
+        decryptLabel.setText("The plaintext : ");
+        modulusLabel.setText("Modulus : ");
+        keysLabel.setText("Enter your keys : ");
+        keysLabel.setFont(new Font("Courier New", 15));
 
-        tPrivateKey.setWrapText(true);
-        tPrivateKey.setMaxSize(300,80);
+        privateKeyTextArea.setWrapText(true);
+        privateKeyTextArea.setMaxSize(300,80);
 
-        tPublicKey.setWrapText(true);
-        tPublicKey.setMaxSize(300,80);
+        publicKeyTextArea.setWrapText(true);
+        publicKeyTextArea.setMaxSize(300,80);
 
-        tMod.setWrapText(true);
-        tMod.setMaxSize(300,80);
+        modulusTextArea.setWrapText(true);
+        modulusTextArea.setMaxSize(300,80);
 
-        tMsgCrypt.setWrapText(true);
-        tMsgCrypt.setMaxSize(400, 150);
-        tMsgCrypt.setPromptText("Your crypt message...");
-        tMsgDecrypt.setWrapText(true);
-        tMsgDecrypt.setMaxSize(400, 150);
-        tMsgDecrypt.setPromptText("Your decrypt message...");
-        tMsgCrypt2.setWrapText(true);
-        tMsgCrypt2.setMaxSize(400, 150);
-        msgCryptS.setWrapText(true);
-        msgCryptS.setMaxSize(400, 150);
-        msgCryptS.setPromptText("Your crypt message signed...");
-
-        keyCheck.setPromptText("Your key size");
-        keyCheck.getItems().addAll(RSA.getSupportedKeySize());
+        cryptedTextArea.setWrapText(true);
+        cryptedTextArea.setMaxSize(400, 150);
+        cryptedTextArea.setPromptText("Cipher...");
+        decryptedTextArea.setWrapText(true);
+        decryptedTextArea.setMaxSize(400, 150);
+        decryptedTextArea.setPromptText("plaintext...");
 
 
-        keyCheck.setOnAction(action -> {
-            ok.setDisable(false);
-            model = controller.getRSAModel((Integer)keyCheck.getValue());
+        keySizesComboBox.setOnAction(action -> {
+            okButton.setDisable(false);
+            model = controller.getRSAModel((Integer)keySizesComboBox.getValue());
         });
 
 
-        ok.setOnAction(e -> {
-            Integer key_size = (Integer)keyCheck.getValue();
-            String publicKey = tPublicKey.getText();
-            String privateKey = tPrivateKey.getText();
-            String modulus = tMod.getText();
+        okButton.setOnAction(e -> {
+            Integer key_size = (Integer)keySizesComboBox.getValue();
+            String publicKey = publicKeyTextArea.getText();
+            String privateKey = privateKeyTextArea.getText();
+            String modulus = modulusTextArea.getText();
 
             if(key_size == null || publicKey.length() <=0 || privateKey.length() <=0 || modulus.length() <=0 ) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -170,11 +151,11 @@ public class RSAView extends Scene {
                 return;
             }
 
-                tPrivateKey.setEditable(false);
-                tPublicKey.setEditable(false);
-                tMod.setEditable(false);
-                crypt.setDisable(false);
-                decrypt.setDisable(false);
+                privateKeyTextArea.setEditable(false);
+                publicKeyTextArea.setEditable(false);
+                modulusTextArea.setEditable(false);
+                cryptButton.setDisable(false);
+                decryptButton.setDisable(false);
             try{
                 model.setPublicKey(publicKey);
                 model.setPrivateKey(privateKey);
@@ -185,33 +166,54 @@ public class RSAView extends Scene {
                 alert.setHeaderText("Invalid parameter !");
                 alert.setContentText(null);
                 alert.showAndWait();
-                tPrivateKey.setEditable(true);
-                tPublicKey.setEditable(true);
-                tMod.setEditable(true);
+                privateKeyTextArea.setEditable(true);
+                publicKeyTextArea.setEditable(true);
+                modulusTextArea.setEditable(true);
             }
 
 
 
         });
 
-        valid.setOnAction(e -> {
-            tPrivateKey.setEditable(false);
-            tPublicKey.setEditable(false);
-            tMod.setEditable(false);
+        validButton.setOnAction(e -> {
+            privateKeyTextArea.setEditable(false);
+            publicKeyTextArea.setEditable(false);
+            modulusTextArea.setEditable(false);
 
             model.generateKeys();
 
-            tPrivateKey.setText(Base64.getEncoder().encodeToString(model.getPrivateKey().toByteArray()));
-            tPublicKey.setText(Base64.getEncoder().encodeToString(model.getPublicKey().toByteArray()));
-            tMod.setText(Base64.getEncoder().encodeToString(model.getMod().toByteArray()));
+            privateKeyTextArea.setText(Base64.getEncoder().encodeToString(model.getPrivateKey().toByteArray()));
+            publicKeyTextArea.setText(Base64.getEncoder().encodeToString(model.getPublicKey().toByteArray()));
+            modulusTextArea.setText(Base64.getEncoder().encodeToString(model.getMod().toByteArray()));
         });
 
-        crypt.setOnAction(e -> {
-            if(tMsgDecrypt.getText().length() > 0){
-                String plaintext = tMsgDecrypt.getText();
+        cryptButton.setOnAction(e -> {
+
+            signatureLabel.setText("");
+
+            if(decryptedTextArea.getText().length() > 0){
+
+                if(useSignatureCheckBox.isSelected() && hashAlgoComboBox.getValue() == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("If you want to sign your message, you need to choose an hash algorithm !");
+                    alert.setContentText(null);
+                    alert.showAndWait();
+                    return;
+                }
+
+                String plaintext = decryptedTextArea.getText();
                 try{
                     String cipher = model.encode(plaintext, model.getPublicKey(), model.getMod());
-                    tMsgCrypt.setText(cipher);
+
+                    if(useSignatureCheckBox.isSelected()) {
+                        System.out.println("Signing message...");
+                        cipher = model.sign(cipher, (String)hashAlgoComboBox.getValue(), model.getPrivateKey(), model.getMod());
+                        signatureLabel.setText("Your message has been signed !");
+                        signatureLabel.setTextFill(Color.GREEN);
+                    }
+
+                    cryptedTextArea.setText(cipher);
                 }catch (InvalidParameterException e1) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -229,13 +231,42 @@ public class RSAView extends Scene {
                 alert.showAndWait();
             }
 
+
         });
 
-        decrypt.setOnAction(e -> {
-            if(tMsgCrypt.getText().length() > 0) {
-                String plaintext = tMsgCrypt.getText();
+        decryptButton.setOnAction(e -> {
+
+            signatureLabel.setText("");
+
+            if(cryptedTextArea.getText().length() > 0) {
+
+                if(useSignatureCheckBox.isSelected() && hashAlgoComboBox.getValue() == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("If you want to sign your message, you need to choose an hash algorithm !");
+                    alert.setContentText(null);
+                    alert.showAndWait();
+                    return;
+                }
+
+                String cipher = cryptedTextArea.getText();
                 try {
-                    tMsgDecrypt.setText(model.decode(plaintext, model.getPrivateKey(), model.getMod()));
+
+                    if(useSignatureCheckBox.isSelected()) {
+                        try {
+                            System.out.println("Unsigning message...");
+                            cipher = model.checkSignatureAndReturnUnsigned(cipher, (String)hashAlgoComboBox.getValue(), model.getPublicKey(), model.getMod());
+                        } catch (InvalidSignatureValueException i) {
+                            signatureLabel.setText("Error wrong signature !");
+                            signatureLabel.setTextFill(Color.RED);
+                            decryptedTextArea.setText("");
+                            return;
+                        }
+                    }
+
+                    String decryptedMessage = model.decode(cipher, model.getPrivateKey(), model.getMod());
+                    decryptedTextArea.setText(decryptedMessage);
+
                 } catch (InvalidParameterException e1) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -263,17 +294,12 @@ public class RSAView extends Scene {
 
         });
 
-        keySize.getChildren().addAll(keyCheck, valid);
-        enterKeys.getChildren().addAll(eKeys, keySize, lPrivateKey, tPrivateKey, lPublicKey, tPublicKey, lMod, tMod);
-        containsKeys.getChildren().addAll(enterKeys, ok);
+        keySize.getChildren().addAll(keySizesComboBox, validButton);
+        keysWrapper.getChildren().addAll(keysLabel, keySize, privateKeyLabel, privateKeyTextArea, publicKeyLabel, publicKeyTextArea, modulusLabel, modulusTextArea, okButton);
+        VBox.setMargin(useSignatureCheckBox, new Insets(30, 0, 0, 0));
+        messageWrapper.getChildren().addAll(cryptLabel, cryptedTextArea, decryptButton, decryptLabel, decryptedTextArea, cryptButton, useSignatureCheckBox, hashAlgoComboBox, signatureLabel);
 
-        messageButton.getChildren().addAll(crypt, decrypt);
-        messageBox.getChildren().addAll(lMsgCrypt, tMsgCrypt, messageButton, lMsgDecrypt, tMsgDecrypt );
-
-        signButton.getChildren().addAll(signMethod, bSign);
-        sign.getChildren().addAll(lMsgCrypt2, tMsgCrypt2, lPrivateKey, tPrivateKey, signButton, msgCryptS);
-
-        all.getChildren().addAll(containsKeys, messageBox, sign);
+        all.getChildren().addAll(keysWrapper, messageWrapper);
         root.getChildren().addAll(title, all, backButton);
     }
 

@@ -1,5 +1,7 @@
 package fr.iut.model;
 
+import com.sun.org.apache.xml.internal.security.signature.InvalidSignatureValueException;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -138,7 +140,14 @@ public class RSA {
         if(message == null || public_key == null || mod == null)
             throw new InvalidParameterException("parameters can't be null");
 
-        byte bytes[] = message.getBytes();
+        byte bytes[];
+
+        try {
+            bytes = message.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         if(bytes.length > mKeySize /8)
             throw new InvalidParameterException("The message can't be longer than " + mKeySize + " bits !");
@@ -146,7 +155,12 @@ public class RSA {
         BigInteger message_integer = new BigInteger(bytes);
         BigInteger cipher = message_integer.modPow(public_key, mod);
 
-        return Base64.getEncoder().encodeToString(cipher.toByteArray());
+        try {
+            return new String(Base64.getEncoder().encode(cipher.toByteArray()), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String decode(String b64, BigInteger private_key, BigInteger mod) {
@@ -154,10 +168,61 @@ public class RSA {
         if(b64 == null || private_key == null || mod == null)
             throw new InvalidParameterException("parameters can't be null");
 
-        byte bytes[] = Base64.getDecoder().decode(b64);
+        byte bytes[];
+        try {
+            bytes = Base64.getDecoder().decode(b64.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
         BigInteger cipher_integer = new BigInteger(bytes);
 
-        return new String(cipher_integer.modPow(private_key, mod).toByteArray());
+        try {
+            return new String(cipher_integer.modPow(private_key, mod).toByteArray(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String sign(String b64Cipher, String hashAlgorithm, BigInteger private_key, BigInteger mod) {
+        String result = b64Cipher + ":";
+
+        switch (hashAlgorithm) {
+            case "MD5":
+
+                break;
+
+        }
+
+        return encode(b64Cipher, private_key, mod); //we use the private key as a public key in order to sign the message
+    }
+
+    public String checkSignatureAndReturnUnsigned(String b64Cipher, String hashAlgorithm, BigInteger public_key, BigInteger mod) throws InvalidSignatureValueException {
+
+        String content = decode(b64Cipher, public_key, mod); //we use the public key to unsign
+        String cipher = content.split(":")[0];
+        String hash = content.split(":")[1];
+
+        if(!hash(cipher).equals(hash))
+            throw  new InvalidSignatureValueException("Wrong signature ! cipher had been intercepted/modified ???");
+
+        return cipher;
+    }
+
+    public String hash(String algo) {
+        switch (algo) {
+            case "MD5":
+
+                break;
+        }
+
+        return null;
+    }
+
+    public static String[] getSupportedHashAlgorithms() {
+        return new String[] {"MD5", "SHA1", "SHA256", "SHA512"};
     }
 
     public static Integer[] getSupportedKeySize() {
