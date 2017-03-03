@@ -322,6 +322,10 @@ public class Vigenere {
         return coincidenceIndex;
     }
 
+    public FrequentialAnalysis getFrequentialAnalysis() {
+        return frequentialAnalysis;
+    }
+
     private ArrayList<Integer> findDistancesBetweenPatterns() {
         ArrayList<Integer> repeatedPatternsDistances = new ArrayList<>();
 

@@ -112,6 +112,10 @@ public class FrequentialAnalysis {
         return nb_letters;
     }
 
+    public int getNbDifferentLetters() {
+        return frequences.size();
+    }
+
     //établie un score, plus celui-ci est bas, plus le texte suit les fréquences d'apparition par défaut de la langue donnée
     //On utilise les statistiques Chi Squared : http://practicalcryptography.com/cryptanalysis/text-characterisation/chi-squared-statistic/
     public float matchScore(String country) {
