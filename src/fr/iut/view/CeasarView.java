@@ -64,11 +64,23 @@ public class CeasarView extends Scene {
         inputCrackWrapper.setSpacing(10);
         TextField input = new TextField();
         input.setPromptText("Ceasar code...");
-        Button crackButton = new Button("Bruteforce");
+        Button bruteforceButton = new Button("Bruteforce");
 
-        //crackButton.setOnAction(action -> crack(input.getText()));
+        bruteforceButton.setOnAction(action -> {
+            Ceasar model = controller.getCeasarModel(input.getText());
+            String mostProbableResult = model.getMostProbableAnswer();
+            String [] results = model.getResults();
 
-        inputCrackWrapper.getChildren().addAll(input, crackButton);
+            for(int i = 0; i < 26; i++) {
+                resultInputs[i].setStyle("-fx-control-inner-background: white;");
+                resultInputs[i].setText(results[i]);
+
+                if(mostProbableResult.equals(results[i]))
+                    resultInputs[i].setStyle("-fx-control-inner-background: green;");
+            }
+        });
+
+        inputCrackWrapper.getChildren().addAll(input, bruteforceButton);
 
         Text text = new Text("Here are the possible shifts : ");
 

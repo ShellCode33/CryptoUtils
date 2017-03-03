@@ -43,15 +43,15 @@ public class Controller extends Application {
                 break;
 
             case CEASAR:
-                stage.setScene(new CeasarView(this));
+                stage.setScene(ceasarView);
                 break;
 
             case RSA:
-                stage.setScene(new RSAView(this));
+                stage.setScene(rsaView);
                 break;
 
             case VIGENERE:
-                stage.setScene(new VigenereView(this));
+                stage.setScene(vigenereView);
                 break;
         }
 
