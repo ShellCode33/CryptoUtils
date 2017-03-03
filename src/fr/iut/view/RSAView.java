@@ -100,6 +100,7 @@ public class RSAView extends Scene {
         backButton.setMinHeight(70);
 
         TextArea tPrivateKey = new TextArea();
+        TextArea tPrivateKey2 = new TextArea();
         TextArea tPublicKey = new TextArea();
         TextArea tMsgCrypt = new TextArea();
         TextArea tMsgDecrypt = new TextArea();
@@ -107,21 +108,15 @@ public class RSAView extends Scene {
         TextArea tMsgCrypt2 = new TextArea();
         TextArea msgCryptS = new TextArea();
 
-        Label lPrivateKey = new Label();
-        Label lPublicKey = new Label();
-        Label lMsgCrypt = new Label();
-        Label lMsgDecrypt = new Label();
-        Label lMod = new Label();
-        Label eKeys = new Label();
-        Label lMsgCrypt2 = new Label();
+        Label lPrivateKey = new Label("Your private key : ");
+        Label lPrivateKey2 = new Label("Your private key : ");
+        Label lPublicKey = new Label("Your public key : ");
+        Label lMsgCrypt = new Label("The cipher : ");
+        Label lMsgDecrypt = new Label("The plaintext : ");
+        Label lMod = new Label("Modulus : ");
+        Label eKeys = new Label("Enter your keys : ");
+        Label lMsgCrypt2 = new Label("The cipher : ");
 
-        lPrivateKey.setText("Your private key : ");
-        lPublicKey.setText("Your public key : ");
-        lMsgCrypt.setText("The cipher : ");
-        lMsgCrypt2.setText("The cipher : ");
-        lMsgDecrypt.setText("The plaintext : ");
-        lMod.setText("Modulus : ");
-        eKeys.setText("Enter your keys : ");
         eKeys.setFont(new Font("Courier New", 15));
 
         tPrivateKey.setWrapText(true);
@@ -139,14 +134,24 @@ public class RSAView extends Scene {
         tMsgDecrypt.setWrapText(true);
         tMsgDecrypt.setMaxSize(400, 150);
         tMsgDecrypt.setPromptText("Your decrypt message...");
+
+        tPrivateKey2.setWrapText(true);
+        tPrivateKey2.setMaxSize(300,80);
+        tPrivateKey2.setEditable(false);
+
         tMsgCrypt2.setWrapText(true);
         tMsgCrypt2.setMaxSize(400, 150);
+        tMsgCrypt2.setEditable(false);
         msgCryptS.setWrapText(true);
         msgCryptS.setMaxSize(400, 150);
+        msgCryptS.setEditable(false);
         msgCryptS.setPromptText("Your crypt message signed...");
 
         keyCheck.setPromptText("Your key size");
         keyCheck.getItems().addAll(RSA.getSupportedKeySize());
+
+        signMethod.setPromptText("Choose your sign method...");
+        signMethod.getItems().addAll("MD5", "Char24");
 
 
         keyCheck.setOnAction(action -> {
@@ -179,6 +184,7 @@ public class RSAView extends Scene {
                 model.setPublicKey(publicKey);
                 model.setPrivateKey(privateKey);
                 model.setModulus(modulus);
+                tPrivateKey2.setText(tPrivateKey.getText());
             } catch (IllegalArgumentException e1) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -189,7 +195,6 @@ public class RSAView extends Scene {
                 tPublicKey.setEditable(true);
                 tMod.setEditable(true);
             }
-
 
 
         });
@@ -212,6 +217,7 @@ public class RSAView extends Scene {
                 try{
                     String cipher = model.encode(plaintext, model.getPublicKey(), model.getMod());
                     tMsgCrypt.setText(cipher);
+                    tMsgCrypt2.setText(cipher);
                 }catch (InvalidParameterException e1) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
@@ -263,6 +269,10 @@ public class RSAView extends Scene {
 
         });
 
+        bSign.setOnAction(e -> {
+
+        });
+
         keySize.getChildren().addAll(keyCheck, valid);
         enterKeys.getChildren().addAll(eKeys, keySize, lPrivateKey, tPrivateKey, lPublicKey, tPublicKey, lMod, tMod);
         containsKeys.getChildren().addAll(enterKeys, ok);
@@ -271,7 +281,7 @@ public class RSAView extends Scene {
         messageBox.getChildren().addAll(lMsgCrypt, tMsgCrypt, messageButton, lMsgDecrypt, tMsgDecrypt );
 
         signButton.getChildren().addAll(signMethod, bSign);
-        sign.getChildren().addAll(lMsgCrypt2, tMsgCrypt2, lPrivateKey, tPrivateKey, signButton, msgCryptS);
+        sign.getChildren().addAll(lMsgCrypt2, tMsgCrypt2, lPrivateKey2, tPrivateKey2, signButton, msgCryptS);
 
         all.getChildren().addAll(containsKeys, messageBox, sign);
         root.getChildren().addAll(title, all, backButton);
