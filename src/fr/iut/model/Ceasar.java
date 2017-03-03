@@ -10,24 +10,7 @@ public class Ceasar {
 
     public Ceasar(String cipher) {
         this.cipher = cipher;
-        clearText();
         bruteforce();
-    }
-
-    private void clearText() {
-        //On enlève la ponctuation
-        String to_remove_chars[] = new String[] {".", ",", "!", "?", ";", ":", "-", "'"};
-        for(String to_remove : to_remove_chars)
-            cipher = cipher.replace(to_remove, "");
-
-        boolean hasNonAlpha = cipher.matches("^.*[^a-zA-Z0-9 ].*$");
-
-        if(hasNonAlpha)
-            throw new IllegalArgumentException("Special chars are not allowed ! Please remove all the '\"éàè@ etc...");
-
-        cipher = cipher.toUpperCase();
-        cipher = cipher.trim();
-        cipher = cipher.replaceAll(" +", " "); //enlève les espaces multiples
     }
 
     private void bruteforce() {
@@ -43,14 +26,14 @@ public class Ceasar {
     public String getMostProbableAnswer() {
 
         String bestScoreStr = "";
-        float highestScore = -1;
+        float lowestScore = Float.MAX_VALUE;
 
         for(String result : results) {
             float score = new FrequentialAnalysis(result).matchScore("FR");
 
-            if(highestScore < score) {
+            if(lowestScore > score) {
                 bestScoreStr = result;
-                highestScore = score;
+                lowestScore = score;
             }
         }
 

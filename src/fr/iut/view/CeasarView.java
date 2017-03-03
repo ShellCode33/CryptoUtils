@@ -36,6 +36,7 @@ public class CeasarView extends Scene {
         TextArea textArea = new TextArea();
         textArea.setWrapText(true);
         textArea.setPromptText("Message...");
+        textArea.setText("Bonsoir ce texte est un test pour montrer que le cracker parvient la plupart du temps a trouver le texte le plus probable surtout lorsque le texte est long");
 
         HBox spinnerWrap = new HBox();
         spinnerWrap.setAlignment(Pos.CENTER);
@@ -50,25 +51,40 @@ public class CeasarView extends Scene {
         resultArea.setWrapText(true);
         resultArea.setEditable(false);
 
-        Button encodeButton = new Button("Encode");
-
-        encodeButton.setOnAction(actionEvent -> {
-            resultArea.setText(Ceasar.encode(textArea.getText(), shiftSpinner.getValue()));
-        });
-
-        Text subtitle2 = new Text("Cracker");
-        subtitle2.setFont(new Font("Courier New", 20));
-
         HBox inputCrackWrapper = new HBox();
         inputCrackWrapper.setAlignment(Pos.CENTER);
         inputCrackWrapper.setSpacing(10);
         TextField input = new TextField();
         input.setPromptText("Ceasar code...");
+
+        Button encodeButton = new Button("Encode");
+
+        encodeButton.setOnAction(actionEvent -> {
+
+            boolean hasNonAlpha = textArea.getText().matches("^.*[^a-zA-Z0-9 ].*$");
+
+            if(hasNonAlpha) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Please only use caracters between A and Z (no special chars allowed) !");
+                alert.setContentText(null);
+                alert.showAndWait();
+                return;
+            }
+
+            resultArea.setText(Ceasar.encode(textArea.getText(), shiftSpinner.getValue()));
+            input.setText(resultArea.getText());
+        });
+
+        Text subtitle2 = new Text("Cracker");
+        subtitle2.setFont(new Font("Courier New", 20));
+
         Button bruteforceButton = new Button("Bruteforce");
 
         bruteforceButton.setOnAction(action -> {
             Ceasar model = controller.getCeasarModel(input.getText());
             String mostProbableResult = model.getMostProbableAnswer();
+            System.out.println("Most probable result :\n" + mostProbableResult);
             String [] results = model.getResults();
 
             for(int i = 0; i < 26; i++) {
