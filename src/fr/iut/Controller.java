@@ -48,6 +48,7 @@ public class Controller extends Application {
 
             case RSA:
                 stage.setScene(rsaView);
+                rsaView.showInfo();
                 break;
 
             case VIGENERE:

@@ -71,6 +71,10 @@ public class RSA {
         mPrivateKey = new BigInteger(Base64.getDecoder().decode(b64PrivateKey));
     }
 
+    public void setKeySize(int size) {
+        mKeySize = size;
+    }
+
     public void setModulus(String b64Modulus) {
         mMod = new BigInteger(Base64.getDecoder().decode(b64Modulus));
     }
@@ -137,7 +141,7 @@ public class RSA {
         byte bytes[] = message.getBytes();
 
         if(bytes.length > mKeySize /8)
-            throw new InvalidParameterException("The message can't be longer than " + mKeySize + " bits !"); //TODO : découper en plusieurs messages au lieu de lever une exception
+            throw new InvalidParameterException("The message can't be longer than " + mKeySize + " bits !");
 
         BigInteger message_integer = new BigInteger(bytes);
         BigInteger cipher = message_integer.modPow(public_key, mod);
