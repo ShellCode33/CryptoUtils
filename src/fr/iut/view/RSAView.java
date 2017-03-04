@@ -193,15 +193,6 @@ public class RSAView extends Scene {
 
             if(decryptedTextArea.getText().length() > 0){
 
-                if(useSignatureCheckBox.isSelected() && hashAlgoComboBox.getValue() == null) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("If you want to sign your message, you need to choose an hash algorithm !");
-                    alert.setContentText(null);
-                    alert.showAndWait();
-                    return;
-                }
-
                 String plaintext = decryptedTextArea.getText();
                 String cipher = model.encode(plaintext, model.getPublicKey(), model.getMod());
 
@@ -247,6 +238,8 @@ public class RSAView extends Scene {
                     if(useSignatureCheckBox.isSelected()) {
                         System.out.println("Unsigning message...");
                         cipher = model.checkSignatureAndReturnUnsigned(cipher, (String)hashAlgoComboBox.getValue(), model.getPublicKey(), model.getMod());
+                        signatureLabel.setText("Signature valid !");
+                        signatureLabel.setTextFill(Color.GREEN);
                     }
 
                     String decryptedMessage = model.decode(cipher, model.getPrivateKey(), model.getMod());

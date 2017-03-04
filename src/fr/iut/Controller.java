@@ -11,9 +11,6 @@ import fr.iut.view.VigenereView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-
 public class Controller extends Application {
 
     private Stage stage;
