@@ -9,7 +9,7 @@ public class Vigenere {
 
     FrequentialAnalysis frequentialAnalysis;
     String original_text, text; //Ce texte peut très bien être du plaintext comme le cipher
-    int NbKey;
+    LinkedHashMap<String, Float> best_keys_score_sorted;
 
     public Vigenere(FrequentialAnalysis frequentialAnalysis) {
         this.frequentialAnalysis = frequentialAnalysis;
@@ -56,6 +56,10 @@ public class Vigenere {
     }
 
     public String encode(String key) {
+        return encode(text, key);
+    }
+
+    public String encode(String text, String key) {
 
         boolean hasNonAlpha = key.matches("^.*[^a-zA-Z0-9 ].*$");
 
@@ -85,7 +89,7 @@ public class Vigenere {
         return cipher;
     }
 
-    public void crack() {
+    public void crack(String country) {
 
         ArrayList<Integer> repeatedPatternsDistances = findDistancesBetweenPatterns();
 
@@ -174,7 +178,7 @@ public class Vigenere {
                     String decoded = decode(encrypted_with_same_letter_of_key[i], "" + c);
                     System.out.print(" " + c);
 
-                    float score = new FrequentialAnalysis(decoded).matchScore("FR");
+                    float score = new FrequentialAnalysis(decoded).matchScore(country);
                     scores.add(score);
                 }
 
@@ -232,17 +236,17 @@ public class Vigenere {
 
                 System.out.println("Looks like the key is : " + key);
                 System.out.println("Decoded message : " + decoded);
-                System.out.print("Does the text makes sense ? Do you want to continue searching (Y/N) ? ");
-
-                Scanner scanner = new Scanner(System.in);
-
-                String read = "Dummy";
-                while(read.charAt(0) != 'Y' && read.charAt(0) != 'N') {
-                    read = scanner.nextLine();
-                }
-
-                if(read.charAt(0) == 'N')
-                    System.exit(0);
+//                System.out.print("Does the text makes sense ? Do you want to continue searching (Y/N) ? ");
+//
+//                Scanner scanner = new Scanner(System.in);
+//
+//                String read = "Dummy";
+//                while(read.charAt(0) != 'Y' && read.charAt(0) != 'N') {
+//                    read = scanner.nextLine();
+//                }
+//
+//                if(read.charAt(0) == 'N')
+//                    System.exit(0);
 
                 best_keys_score.put(key, findCoincidenceIndex(decoded));
             }
@@ -261,10 +265,9 @@ public class Vigenere {
             }
         }
 
-        Map<String, Float> best_keys_score_sorted = new LinkedHashMap<>();
-        NbKey = best_keys_score.size();
+        best_keys_score_sorted = new LinkedHashMap<>();
 
-        System.out.println("There is a total of " + NbKey + " keys, here is the list from the less probable to the most :");
+        System.out.println("There is a total of " + best_keys_score.size() + " keys, here is the list from the less probable to the most :");
 
         while(best_keys_score.size() > 0) {
             float lowest_score = Float.MAX_VALUE;
@@ -292,6 +295,10 @@ public class Vigenere {
 
         System.out.println("\nSo it looks like the good key is : " + best_key);
         System.out.println("But be careful because it could be wrong... So check the decoded text if it makes sense.");
+    }
+
+    public LinkedHashMap<String, Float> getBestKeysScoreSorted() {
+        return best_keys_score_sorted;
     }
 
     private static void bruteforce(List<List<Character>> letters_to_bruteforce, List<String> keys, int depth, String current)
@@ -371,5 +378,9 @@ public class Vigenere {
 
         System.out.println();
         return repeatedPatternsDistances;
+    }
+
+    public static String[] getSupportedCountries() {
+        return new String[] {"FR", "EN"};
     }
 }
