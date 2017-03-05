@@ -7,9 +7,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 public class VigenereView extends Scene {
 
     private BorderPane root;
+    private Vigenere model;
 
     public VigenereView(Controller controller) {
         super(new BorderPane());
@@ -37,6 +39,7 @@ public class VigenereView extends Scene {
         TableColumn<List<String>, String> colFrequencies = new TableColumn<>("Frequencies");
         colLetters.setMinWidth(150);
         colFrequencies.setMinWidth(150);
+
 
         colLetters.setCellValueFactory(data -> {
             List<String> rowValues = data.getValue();
@@ -74,8 +77,24 @@ public class VigenereView extends Scene {
         //TabFreq.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         VBox wrapper = new VBox(title, titleMsg, message, valid);
+        VBox Frequency = new VBox(table);
+        Frequency.setAlignment(Pos.TOP_CENTER);
+        Frequency.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
+        Frequency.setSpacing(20);
+        Frequency.setPadding(new Insets(30));
+
+        VBox Keys = new VBox();
+        Text text = new Text("There is a list of keys from the less probable to the most :");
+        Keys.setAlignment(Pos.TOP_CENTER);
+        Keys.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(3))));
+        Keys.setSpacing(20);
+        Keys.setPadding(new Insets(30));
+        Keys.getChildren().addAll(text);
+
+
         root.setTop(wrapper);
-        root.setCenter(table);
+        root.setLeft(table);
+        root.setRight(Keys);
 
     }
 }

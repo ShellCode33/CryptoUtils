@@ -9,6 +9,7 @@ public class Vigenere {
 
     FrequentialAnalysis frequentialAnalysis;
     String original_text, text; //Ce texte peut très bien être du plaintext comme le cipher
+    int NbKey;
 
     public Vigenere(FrequentialAnalysis frequentialAnalysis) {
         this.frequentialAnalysis = frequentialAnalysis;
@@ -261,8 +262,9 @@ public class Vigenere {
         }
 
         Map<String, Float> best_keys_score_sorted = new LinkedHashMap<>();
+        NbKey = best_keys_score.size();
 
-        System.out.println("There is a total of " + best_keys_score.size() + " keys, here is the list from the less probable to the most :");
+        System.out.println("There is a total of " + NbKey + " keys, here is the list from the less probable to the most :");
 
         while(best_keys_score.size() > 0) {
             float lowest_score = Float.MAX_VALUE;
@@ -325,6 +327,7 @@ public class Vigenere {
     public FrequentialAnalysis getFrequentialAnalysis() {
         return frequentialAnalysis;
     }
+
 
     private ArrayList<Integer> findDistancesBetweenPatterns() {
         ArrayList<Integer> repeatedPatternsDistances = new ArrayList<>();
