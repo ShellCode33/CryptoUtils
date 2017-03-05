@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -76,6 +77,27 @@ public class VigenereView extends Scene {
         colScore.setResizable(false);
         colTextDecrypted.setMinWidth(400);
         colTextDecrypted.setResizable(false);
+
+        tableResult.setRowFactory(tv -> {
+            TableRow<List<String>> row = new TableRow<>();
+
+            row.setOnMouseClicked(event -> {
+                if (! row.isEmpty() && event.getButton()== MouseButton.PRIMARY && event.getClickCount() >= 1) {
+                    List<String> clickedRow = row.getItem();
+
+                    Text decryptedLabel = new Text(clickedRow.get(2));
+                    decryptedLabel.setWrappingWidth(300);
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information");
+                    alert.setHeaderText("Key : " + clickedRow.get(0) + "\nScore : " + clickedRow.get(1));
+                    alert.getDialogPane().setContent(decryptedLabel);
+                    alert.showAndWait();
+                }
+            });
+
+            return row ;
+        });
 
         colKey.setCellValueFactory(data -> {
             List<String> rowValues = data.getValue();
