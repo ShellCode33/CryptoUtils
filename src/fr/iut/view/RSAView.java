@@ -66,7 +66,11 @@ public class RSAView extends Scene {
         Button okButton = new Button("Ok");
         Button cryptButton = new Button("Crypt your message");
         Button decryptButton = new Button("Decrypt your message");
+
         Button backButton = new Button("Back to menu");
+        backButton.setOnAction(action -> controller.switchState(State.MENU));
+        backButton.setMinWidth(200);
+        backButton.setMinHeight(70);
 
         ComboBox keySizesComboBox = new ComboBox();
         keySizesComboBox.getItems().addAll(RSA.getSupportedKeySize());
@@ -87,10 +91,6 @@ public class RSAView extends Scene {
 
         okButton.setMinWidth(150);
         okButton.setMinHeight(50);
-
-        backButton.setOnAction(action -> controller.switchState(State.MENU));
-        backButton.setMinWidth(200);
-        backButton.setMinHeight(70);
 
         TextArea privateKeyTextArea = new TextArea();
         TextArea publicKeyTextArea = new TextArea();
@@ -242,12 +242,14 @@ public class RSAView extends Scene {
                         signatureLabel.setTextFill(Color.GREEN);
                     }
 
-                    String decryptedMessage = model.decode(cipher, model.getPrivateKey(), model.getMod());
+                    System.out.println("decoding...");
+                    String decryptedMessage = model.decodeToString(cipher, model.getPrivateKey(), model.getMod());
                     decryptedTextArea.setText(decryptedMessage);
 
                 }
 
                 catch (IllegalArgumentException e1) {
+                    e1.printStackTrace();
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
                     alert.setHeaderText("Invalid cipher !");

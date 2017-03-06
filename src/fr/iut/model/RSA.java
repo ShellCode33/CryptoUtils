@@ -51,11 +51,15 @@ public class RSA {
 
         BigInteger d = e.modInverse(phi_n);
 
-        System.out.println("p = " + p.toString() + "\n");
-        System.out.println("q = " + q.toString() + "\n");
-        System.out.println("phi(n) = " + phi_n.toString() + "\n");
-        System.out.println("e = " + e.toString() + "\n");
-        System.out.println("d = " + d.toString() + "\n");
+//        System.out.println("p = " + p.toString() + "\n");
+//        System.out.println("q = " + q.toString() + "\n");
+//        System.out.println("phi(n) = " + phi_n.toString() + "\n");
+//        System.out.println("e = " + e.toString() + "\n");
+//        System.out.println("d = " + d.toString() + "\n");
+
+        System.out.println("private_key size : " + d.bitLength());
+        System.out.println("public_key size : " + e.bitLength());
+        System.out.println("mod size : " + mMod.bitLength());
 
         mPublicKey = e;
         mPrivateKey = d;
@@ -137,52 +141,66 @@ public class RSA {
         return mMod;
     }
 
-    //retourne de la base 64
     public String encode(String message, BigInteger public_key, BigInteger mod) {
-
         if(message == null || public_key == null || mod == null)
             throw new InvalidParameterException("parameters can't be null");
 
-        byte msg_bytes[];
+        byte msg_bytes[] = null;
 
         try {
             message = Normalizer.normalize(message, Normalizer.Form.NFD); //fix bugs d'accents
             msg_bytes = message.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return null;
         }
 
-        int nb_sub_messages = (int)Math.ceil((double)msg_bytes.length / (mKeySize/8-1));
-        System.out.println("" + nb_sub_messages + " sub messages");
+        return encode(msg_bytes, public_key, mod);
+    }
+
+    //retourne de la base 64
+    public String encode(byte [] msg_bytes, BigInteger public_key, BigInteger mod) {
+
+        if(msg_bytes == null || public_key == null || mod == null)
+            throw new InvalidParameterException("parameters can't be null");
+
+        int block_size = mod.bitLength()/8-2; //On définit la taille d'un block en fonction du modulo car  1 < m < n   (avec m = taille message et n = p * q = modulo)
+        int nb_sub_messages = (int)Math.ceil((double)msg_bytes.length / block_size);
 
         byte [][] blocks = new byte[nb_sub_messages][];
 
         int copied_bytes = 0;
         int i = 0;
         for(; i < nb_sub_messages-1; i++) {
-            byte[] msg_block = Arrays.copyOfRange(msg_bytes, i * mKeySize/8 - i, (i+1) * mKeySize/8 - i - 1);
+            byte[] msg_block = Arrays.copyOfRange(msg_bytes, i * block_size, (i+1) * block_size);
             copied_bytes += msg_block.length;
+
             BigInteger message_integer = new BigInteger(msg_block);
             BigInteger cipher = message_integer.modPow(public_key, mod);
             byte [] cipher_bytes = cipher.toByteArray();
+
             byte [] block = new byte[mKeySize/8];
 
+            int block_index = mKeySize/8-1;
             for(int j = cipher_bytes.length-1; j >= 0; j--)
-                block[j] = cipher_bytes[j];
+                block[block_index--] = cipher_bytes[j];
+
+            System.out.println("encoded : " + Arrays.toString(block));
 
             blocks[i] = block;
         }
 
         if(msg_bytes.length - copied_bytes > 0) {
             byte[] msg_block = Arrays.copyOfRange(msg_bytes, copied_bytes, msg_bytes.length);
+//            System.out.println("encode block : " + Arrays.toString(msg_block));
+//            System.out.println("Encrypted bytes count : " + msg_block.length);
             BigInteger message_integer = new BigInteger(msg_block);
             BigInteger cipher = message_integer.modPow(public_key, mod);
             byte [] cipher_bytes = cipher.toByteArray();
             byte [] block = new byte[mKeySize/8];
 
+            int block_index = mKeySize/8-1;
             for(int j = cipher_bytes.length-1; j >= 0; j--)
-                block[j] = cipher_bytes[j];
+                block[block_index--] = cipher_bytes[j];
 
             blocks[i] = block;
         }
@@ -203,96 +221,117 @@ public class RSA {
         }
     }
 
-    public String decode(String b64, BigInteger private_key, BigInteger mod) {
+    public String decodeToString(String b64, BigInteger private_key, BigInteger mod) {
+        try {
+            return new String(decode(b64, private_key, mod), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public byte[] decode(String b64, BigInteger private_key, BigInteger mod) {
 
         if(b64 == null || private_key == null || mod == null)
             throw new InvalidParameterException("parameters can't be null");
 
-        byte bytes[];
+        byte cipher[];
         try {
-            bytes = Base64.getDecoder().decode(b64.getBytes("UTF-8"));
+            cipher = Base64.getDecoder().decode(b64.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return null;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
+        int nb_blocks = (cipher.length * 8) / mKeySize;
 
-        int nb_blocks = (bytes.length * 8) / mKeySize;
+        byte [][] blocks = new byte[nb_blocks][];
+        int total_blocks_size = 0;
 
+        int index = 0;
         for(int i = 0; i < nb_blocks; i++) {
-            try {
-                BigInteger cipher_integer = new BigInteger(Arrays.copyOfRange(bytes, i * mKeySize/8, (i+1) * mKeySize/8));
-                byte [] plaintext_bytes = cipher_integer.modPow(private_key, mod).toByteArray();
-                stringBuilder.append(new String(plaintext_bytes, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+
+            byte [] cipher_bytes = Arrays.copyOfRange(cipher, i * mKeySize/8, (i+1) * mKeySize/8);
+            byte [] decrypted_bytes = new BigInteger(cipher_bytes).modPow(private_key, mod).toByteArray();
+
+            System.out.println("decrypted_bytes size : " + decrypted_bytes.length);
+
+            int padding_size = 0;
+            while(decrypted_bytes[padding_size] == 0)
+                padding_size++;
+
+            if(padding_size > 0) {
+                System.out.println("padding detected ! Removing it ;)");
+
+                byte [] removed_padding = new byte[decrypted_bytes.length - padding_size];
+
+                int remove_padding_index = 0;
+                for(int j = padding_size; j < decrypted_bytes.length; j++)
+                    removed_padding[remove_padding_index++] = decrypted_bytes[j];
+
+                decrypted_bytes = removed_padding;
             }
+
+            blocks[index++] = decrypted_bytes;
+            total_blocks_size += decrypted_bytes.length;
         }
 
-        return stringBuilder.toString();
+        byte [] inline_blocks = new byte[total_blocks_size];
+
+        index = 0;
+        for(byte [] block : blocks) {
+            for(int i = 0; i < block.length; i++)
+                inline_blocks[index++] = block[i];
+        }
+
+        return inline_blocks;
     }
 
     public String sign(String b64Cipher, String hashAlgorithm, BigInteger private_key, BigInteger mod) {
-        BigInteger cipher = new BigInteger(Base64.getDecoder().decode(b64Cipher));
-        String cipherString = cipher.toString();
-        String cipherHash = hash(cipherString, hashAlgorithm);
-        String result = cipherString + ":" + cipherHash;
-        return encode(result, private_key, mod); //we use the private key as a public key in order to sign the message
+
+        String cipherHash = Base64.getEncoder().encodeToString(hash(Base64.getDecoder().decode(b64Cipher), hashAlgorithm));
+        System.out.println("created hash : " + cipherHash);
+
+        String result = encode(b64Cipher + ":" + cipherHash, private_key, mod);
+
+        return result; //we use the private key as a public key in order to sign the message
     }
 
+    //retourne de la base 64
     public String checkSignatureAndReturnUnsigned(String b64Cipher, String hashAlgorithm, BigInteger public_key, BigInteger mod) throws InvalidSignatureValueException {
 
-        String content = decode(b64Cipher, public_key, mod); //we use the public key to unsign
+        System.out.println("checking signature...");
+        String content = decodeToString(b64Cipher, public_key, mod); //we use the public key to unsign
         String [] parts = content.split(":");
 
         if(parts.length != 2)
-            throw  new InvalidSignatureValueException("Wrong signature ! cipher had been intercepted/modified ???");
+            throw new InvalidSignatureValueException("Wrong signature ! cipher had been intercepted/modified ???");
 
-        String cipher = parts[0];
-        String signature = parts[1];
-        String cipherHash = hash(cipher, hashAlgorithm);
+        String cipherB64 = parts[0];
+        String hashCipherB64 = parts[1];
 
-        if(!cipherHash.equals(signature))
-            throw  new InvalidSignatureValueException("Wrong signature ! cipher had been intercepted/modified ???");
+        System.out.println("cipher : " + Arrays.toString(Base64.getDecoder().decode(cipherB64)));
+        System.out.println("read hashCipher : " + hashCipherB64);
+        System.out.println("computed hashCipher : " + Base64.getEncoder().encodeToString(hash(Base64.getDecoder().decode(cipherB64), hashAlgorithm)));
 
-        try {
-            return new String(Base64.getEncoder().encode(new BigInteger(cipher).toByteArray()), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        if(!Arrays.equals(Base64.getDecoder().decode(hashCipherB64), hash(Base64.getDecoder().decode(cipherB64), hashAlgorithm)))
+            throw new InvalidSignatureValueException("Wrong signature ! cipher had been intercepted/modified ???");
 
-        return null;
+        return cipherB64;
     }
 
-    public String hash(String text, String algo) {
-        byte[] hash;
+    public byte[] hash(byte [] bytes, String algo) {
+        byte[] hash = null;
 
         try {
-            hash = MessageDigest.getInstance(algo).digest(text.getBytes("UTF-8"));
+            hash = MessageDigest.getInstance(algo).digest(bytes);
         }
 
-        catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+        catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return  null;
         }
 
-        StringBuilder hashString = new StringBuilder();
-
-        for (int i = 0; i < hash.length; i++) {
-
-            String hex = Integer.toHexString(hash[i]);
-
-            if (hex.length() == 1) {
-                hashString.append('0');
-                hashString.append(hex.charAt(hex.length() - 1));
-            }
-
-            else
-                hashString.append(hex.substring(hex.length() - 2));
-        }
-
-        return hashString.toString();
+        return hash;
     }
 
     public static String[] getSupportedHashAlgorithms() {
