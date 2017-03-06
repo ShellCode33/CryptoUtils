@@ -2,7 +2,6 @@ package fr.iut.view;
 
 import fr.iut.Controller;
 import fr.iut.State;
-import fr.iut.model.RSA;
 import fr.iut.model.Vigenere;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Insets;

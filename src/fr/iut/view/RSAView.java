@@ -12,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import java.security.InvalidParameterException;
 import java.util.Base64;
 
 /**
@@ -22,16 +21,6 @@ public class RSAView extends Scene {
 
     private VBox root;
     private RSA model;
-
-    /*
-
-    textarea pour le cipher
-    textarea pour la clé privée (utilisée pour signer)
-    combobox pour choisir l'algorithme de hash
-    bouton "sign"
-    textarea pour le resultat
-
-     */
 
     public RSAView(Controller controller) {
         super(new VBox());
@@ -176,10 +165,6 @@ public class RSAView extends Scene {
         });
 
         generateButton.setOnAction(e -> {
-            privateKeyTextArea.setEditable(false);
-            publicKeyTextArea.setEditable(false);
-            modulusTextArea.setEditable(false);
-
             model.generateKeys();
 
             privateKeyTextArea.setText(Base64.getEncoder().encodeToString(model.getPrivateKey().toByteArray()));
